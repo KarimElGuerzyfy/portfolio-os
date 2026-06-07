@@ -1,26 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg:           var(--bg);
+  --color-surface:      var(--surface);
+  --color-surface-high: var(--surface-high);
+  --color-border:       var(--border);
+  --color-accent:       var(--accent);
+  --color-accent-dim:   var(--accent-dim);
+  --color-text:         var(--text);
+  --color-text-dim:     var(--text-dim);
+  --font-sans:          var(--font-geist);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* Base */
+  --bg:           #0a0a0f;
+  --surface:      rgba(28, 28, 36, 0.72);
+  --surface-high: rgba(44, 44, 56, 0.80);
+  --border:       rgba(255, 255, 255, 0.08);
+  --border-high:  rgba(255, 255, 255, 0.14);
+
+  /* Accent — keeping your warm orange */
+  --accent:     #d4622a;
+  --accent-dim: #c45520;
+
+  /* Text */
+  --text:     rgba(255, 255, 255, 0.88);
+  --text-dim:  rgba(255, 255, 255, 0.45);
+
+  /* macOS chrome */
+  --menubar:       rgba(18, 18, 24, 0.85);
+  --dock-bg:       rgba(255, 255, 255, 0.08);
+  --dock-border:   rgba(255, 255, 255, 0.12);
+  --panel-bg:      rgba(22, 22, 30, 0.78);
+  --panel-border:  rgba(255, 255, 255, 0.10);
+  --titlebar-bg:   rgba(32, 32, 42, 0.90);
+
+  /* Traffic lights */
+  --traffic-red:    #ff5f57;
+  --traffic-yellow: #febc2e;
+  --traffic-green:  #28c840;
+
+  /* Blur */
+  --blur-panel:   blur(24px);
+  --blur-menubar: blur(20px);
+  --blur-dock:    blur(16px);
 }
 
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
