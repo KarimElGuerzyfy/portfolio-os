@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import Draggable from 'react-draggable'
 import { Resizable } from 're-resizable'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -26,8 +26,9 @@ const MENU_BAR_HEIGHT = 28
 const DOCK_HEIGHT = 80
 
 export default function Panel({ window: w, children }: PanelProps) {
-  const { focusWindow, moveWindow, windows } = useWindows()
+  const { focusWindow, moveWindow, restoreWindow, windows } = useWindows()
   const nodeRef = useRef<HTMLDivElement>(null)
+  const resizeStartPos = useRef({ x: 0, y: 0 })
 
   const item = desktopItems.find((d) => d.id === w.id)
   const variant = item?.variant ?? 'notepad'
@@ -36,6 +37,9 @@ export default function Panel({ window: w, children }: PanelProps) {
   const maxZ = Math.max(...windows.map((win) => win.zIndex))
   const isActive = w.zIndex === maxZ
 
+  // Local size state — user can resize freely; default to variant size on open
+  const [size, setSize] = useState(defaultSize)
+
   const maximizedSize = {
     width: typeof window !== 'undefined' ? window.innerWidth : 1280,
     height: typeof window !== 'undefined'
@@ -43,7 +47,7 @@ export default function Panel({ window: w, children }: PanelProps) {
       : 800,
   }
 
-  const currentSize = w.isMaximized ? maximizedSize : defaultSize
+  const currentSize = w.isMaximized ? maximizedSize : size
   const currentPosition = w.isMaximized
     ? { x: 0, y: MENU_BAR_HEIGHT }
     : w.position
@@ -54,9 +58,14 @@ export default function Panel({ window: w, children }: PanelProps) {
         <Draggable
           nodeRef={nodeRef as React.RefObject<HTMLElement>}
           handle=".window-titlebar"
-          disabled={w.isMaximized}
           position={currentPosition}
-          onStart={() => focusWindow(w.id)}
+          onStart={() => {
+            focusWindow(w.id)
+            if (w.isMaximized) {
+              setSize(defaultSize)
+              restoreWindow(w.id)
+            }
+          }}
           onStop={(_e, data) => moveWindow(w.id, { x: data.x, y: data.y })}
         >
           <div
@@ -74,12 +83,32 @@ export default function Panel({ window: w, children }: PanelProps) {
                 size={currentSize}
                 minWidth={320}
                 minHeight={240}
+                onResizeStart={() => {
+                  focusWindow(w.id)
+                  resizeStartPos.current = { x: w.position.x, y: w.position.y }
+                }}
+                onResize={(_e, direction, ref, delta) => {
+                  const movesLeft = direction.toLowerCase().includes('left')
+                  const movesTop = direction.toLowerCase().includes('top')
+                  if (movesLeft || movesTop) {
+                    const base = resizeStartPos.current
+                    const newX = movesLeft ? base.x - delta.width : base.x
+                    const newY = movesTop ? base.y - delta.height : base.y
+                    moveWindow(w.id, { x: newX, y: newY })
+                  }
+                }}
+                onResizeStop={(_e, _direction, ref) => {
+                  setSize({
+                    width: ref.offsetWidth,
+                    height: ref.offsetHeight,
+                  })
+                }}
                 enable={w.isMaximized ? {
                   top: false, right: false, bottom: false, left: false,
                   topRight: false, bottomRight: false, bottomLeft: false, topLeft: false,
                 } : {
-                  top: false, right: true, bottom: true, left: false,
-                  topRight: false, bottomRight: true, bottomLeft: false, topLeft: false,
+                  top: true, right: true, bottom: true, left: true,
+                  topRight: true, bottomRight: true, bottomLeft: true, topLeft: true,
                 }}
               >
                 <MacChrome id={w.id} title={w.title} isActive={isActive} onMouseDown={() => focusWindow(w.id)}>

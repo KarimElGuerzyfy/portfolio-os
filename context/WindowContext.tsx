@@ -38,6 +38,7 @@ interface WindowContextValue {
   focusWindow: (id: WindowId) => void
   moveWindow: (id: WindowId, position: { x: number; y: number }) => void
   maximizeWindow: (id: WindowId) => void
+  restoreWindow: (id: WindowId) => void
   getWindow: (id: WindowId) => WindowState | undefined
 }
 
@@ -205,6 +206,9 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state.windows])
 
+  const restoreWindow = useCallback((id: WindowId) =>
+    dispatch({ type: 'RESTORE_WINDOW', id }), [])
+
   const getWindow = useCallback((id: WindowId) =>
     state.windows.find((w) => w.id === id), [state.windows])
 
@@ -217,6 +221,7 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
       focusWindow,
       moveWindow,
       maximizeWindow,
+      restoreWindow,
       getWindow,
     }}>
       {children}
