@@ -12,8 +12,8 @@ export interface WindowState {
   isMaximized: boolean
   zIndex: number
   position: { x: number; y: number }
+  size: { width: number; height: number }
   savedPosition: { x: number; y: number } | null
-  savedSize: { width: number; height: number } | null
 }
 
 type ReducerState = {
@@ -27,7 +27,8 @@ type WindowAction =
   | { type: 'MINIMIZE_WINDOW'; id: WindowId }
   | { type: 'FOCUS_WINDOW'; id: WindowId }
   | { type: 'MOVE_WINDOW'; id: WindowId; position: { x: number; y: number } }
-  | { type: 'MAXIMIZE_WINDOW'; id: WindowId; position: { x: number; y: number }; size: { width: number; height: number } }
+  | { type: 'RESIZE_WINDOW'; id: WindowId; size: { width: number; height: number } }
+  | { type: 'MAXIMIZE_WINDOW'; id: WindowId }
   | { type: 'RESTORE_WINDOW'; id: WindowId }
 
 interface WindowContextValue {
@@ -37,12 +38,13 @@ interface WindowContextValue {
   minimizeWindow: (id: WindowId) => void
   focusWindow: (id: WindowId) => void
   moveWindow: (id: WindowId, position: { x: number; y: number }) => void
+  resizeWindow: (id: WindowId, size: { width: number; height: number }) => void
   maximizeWindow: (id: WindowId) => void
   restoreWindow: (id: WindowId) => void
   getWindow: (id: WindowId) => WindowState | undefined
 }
 
-const SIZES: Record<WindowVariant, { width: number; height: number }> = {
+export const SIZES: Record<WindowVariant, { width: number; height: number }> = {
   browser: { width: 1200, height: 775 },
   notepad: { width: 700,  height: 550 },
   pdf:     { width: 650,  height: 850 },
@@ -59,8 +61,8 @@ const initialState: ReducerState = {
     isMaximized: false,
     zIndex: 10,
     position: { x: 0, y: 0 },
+    size: SIZES[item.variant],
     savedPosition: null,
-    savedSize: null,
   })),
 }
 
@@ -72,16 +74,7 @@ function reducer(state: ReducerState, action: WindowAction): ReducerState {
         topZ,
         windows: state.windows.map((w) =>
           w.id === action.id
-            ? {
-                ...w,
-                isOpen: true,
-                isMinimized: false,
-                isMaximized: false,
-                zIndex: topZ,
-                position: action.position,
-                savedPosition: null,
-                savedSize: null,
-              }
+            ? { ...w, isOpen: true, isMinimized: false, isMaximized: false, zIndex: topZ, position: action.position, savedPosition: null }
             : w
         ),
       }
@@ -90,9 +83,7 @@ function reducer(state: ReducerState, action: WindowAction): ReducerState {
       return {
         ...state,
         windows: state.windows.map((w) =>
-          w.id === action.id
-            ? { ...w, isOpen: false, isMinimized: false, isMaximized: false }
-            : w
+          w.id === action.id ? { ...w, isOpen: false, isMinimized: false, isMaximized: false } : w
         ),
       }
     case 'MINIMIZE_WINDOW':
@@ -118,18 +109,19 @@ function reducer(state: ReducerState, action: WindowAction): ReducerState {
           w.id === action.id ? { ...w, position: action.position } : w
         ),
       }
+    case 'RESIZE_WINDOW':
+      return {
+        ...state,
+        windows: state.windows.map((w) =>
+          w.id === action.id ? { ...w, size: action.size } : w
+        ),
+      }
     case 'MAXIMIZE_WINDOW':
       return {
         ...state,
         windows: state.windows.map((w) =>
           w.id === action.id
-            ? {
-                ...w,
-                isMaximized: true,
-                savedPosition: w.position,
-                savedSize: w.savedSize,
-                position: action.position,
-              }
+            ? { ...w, isMaximized: true, savedPosition: w.position }
             : w
         ),
       }
@@ -138,13 +130,7 @@ function reducer(state: ReducerState, action: WindowAction): ReducerState {
         ...state,
         windows: state.windows.map((w) =>
           w.id === action.id
-            ? {
-                ...w,
-                isMaximized: false,
-                position: w.savedPosition ?? w.position,
-                savedPosition: null,
-                savedSize: null,
-              }
+            ? { ...w, isMaximized: false, position: w.savedPosition ?? w.position, savedPosition: null }
             : w
         ),
       }
@@ -185,25 +171,13 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
   const moveWindow = useCallback((id: WindowId, position: { x: number; y: number }) =>
     dispatch({ type: 'MOVE_WINDOW', id, position }), [])
 
+  const resizeWindow = useCallback((id: WindowId, size: { width: number; height: number }) =>
+    dispatch({ type: 'RESIZE_WINDOW', id, size }), [])
+
   const maximizeWindow = useCallback((id: WindowId) => {
     const w = state.windows.find((w) => w.id === id)
     if (!w) return
-
-    if (w.isMaximized) {
-      dispatch({ type: 'RESTORE_WINDOW', id })
-    } else {
-      const menuBarHeight = 28
-      const dockHeight = 80
-      dispatch({
-        type: 'MAXIMIZE_WINDOW',
-        id,
-        position: { x: 0, y: menuBarHeight },
-        size: {
-          width: window.innerWidth,
-          height: window.innerHeight - menuBarHeight - dockHeight,
-        },
-      })
-    }
+    dispatch({ type: w.isMaximized ? 'RESTORE_WINDOW' : 'MAXIMIZE_WINDOW', id })
   }, [state.windows])
 
   const restoreWindow = useCallback((id: WindowId) =>
@@ -220,6 +194,7 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
       minimizeWindow,
       focusWindow,
       moveWindow,
+      resizeWindow,
       maximizeWindow,
       restoreWindow,
       getWindow,

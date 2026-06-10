@@ -10,6 +10,7 @@
   --color-text:         var(--text);
   --color-text-dim:     var(--text-dim);
   --font-sans:          var(--font-geist);
+  --color-panel-border: var(--panel-border);
 }
 
 :root {

@@ -1,56 +1,73 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Draggable from 'react-draggable'
 import { Resizable } from 're-resizable'
 import { motion, AnimatePresence } from 'framer-motion'
 import MacChrome from '@/components/WindowChrome/MacChrome'
+import SafariChrome from '@/components/WindowChrome/SafariChrome'
+import ResumeChrome from '@/components/WindowChrome/ResumeChrome'
+import AboutChrome from '@/components/WindowChrome/AboutChrome'
 import { useWindows } from '@/context/WindowContext'
 import { desktopItems } from '@/data/desktopItems'
 import type { WindowState } from '@/context/WindowContext'
-import type { WindowVariant } from '@/data/desktopItems'
+import type { WindowId } from '@/data/desktopItems'
 
 type PanelProps = {
   window: WindowState
   children: React.ReactNode
 }
 
-const DEFAULT_SIZES: Record<WindowVariant, { width: number; height: number }> = {
-  browser: { width: 1200, height: 775 },
-  notepad: { width: 700,  height: 550 },
-  pdf:     { width: 650,  height: 850 },
-  email:   { width: 725,  height: 525 },
+const BROWSER_URLS: Partial<Record<WindowId, string>> = {
+  deuka:  'deuka.app',
+  ledger: 'ledger.app',
 }
 
 const MENU_BAR_HEIGHT = 28
 const DOCK_HEIGHT = 80
 
 export default function Panel({ window: w, children }: PanelProps) {
-  const { focusWindow, moveWindow, restoreWindow, windows } = useWindows()
+  const { focusWindow, moveWindow, resizeWindow, restoreWindow, windows } = useWindows()
   const nodeRef = useRef<HTMLDivElement>(null)
   const resizeStartPos = useRef({ x: 0, y: 0 })
 
+  // SSR-safe screen measurement for maximized size
+  const [screenSize, setScreenSize] = useState({ width: 1280, height: 800 })
+  useEffect(() => {
+    const measure = () =>
+      setScreenSize({
+        width: window.innerWidth,
+        height: window.innerHeight - MENU_BAR_HEIGHT - DOCK_HEIGHT,
+      })
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
+
   const item = desktopItems.find((d) => d.id === w.id)
   const variant = item?.variant ?? 'notepad'
-  const defaultSize = DEFAULT_SIZES[variant]
 
-  const maxZ = Math.max(...windows.map((win) => win.zIndex))
+  const maxZ = Math.max(...windows.map((win) => win.zIndex), 0)
   const isActive = w.zIndex === maxZ
 
-  // Local size state — user can resize freely; default to variant size on open
-  const [size, setSize] = useState(defaultSize)
+  const currentSize = w.isMaximized
+    ? { width: screenSize.width, height: screenSize.height }
+    : w.size
 
-  const maximizedSize = {
-    width: typeof window !== 'undefined' ? window.innerWidth : 1280,
-    height: typeof window !== 'undefined'
-      ? window.innerHeight - MENU_BAR_HEIGHT - DOCK_HEIGHT
-      : 800,
-  }
-
-  const currentSize = w.isMaximized ? maximizedSize : size
   const currentPosition = w.isMaximized
     ? { x: 0, y: MENU_BAR_HEIGHT }
     : w.position
+
+  const renderChrome = () => {
+    const common = { id: w.id, isActive, onMouseDown: () => focusWindow(w.id) }
+    if (variant === 'browser')
+      return <SafariChrome {...common} url={BROWSER_URLS[w.id] ?? 'localhost'}>{children}</SafariChrome>
+    if (variant === 'pdf')
+      return <ResumeChrome {...common} title={w.title}>{children}</ResumeChrome>
+    if (w.id === 'about')
+      return <AboutChrome {...common} title="About the Developer">{children}</AboutChrome>
+    return <MacChrome {...common} title={w.title}>{children}</MacChrome>
+  }
 
   return (
     <AnimatePresence>
@@ -61,16 +78,14 @@ export default function Panel({ window: w, children }: PanelProps) {
           position={currentPosition}
           onStart={() => {
             focusWindow(w.id)
-            if (w.isMaximized) {
-              setSize(defaultSize)
-              restoreWindow(w.id)
-            }
+            if (w.isMaximized) restoreWindow(w.id)
           }}
           onStop={(_e, data) => moveWindow(w.id, { x: data.x, y: data.y })}
         >
           <div
             ref={nodeRef}
-            style={{ position: 'fixed', zIndex: w.zIndex, top: 0, left: 0 }}
+            className="fixed top-0 left-0"
+            style={{ zIndex: w.zIndex }}
           >
             <motion.div
               key={w.id}
@@ -83,11 +98,15 @@ export default function Panel({ window: w, children }: PanelProps) {
                 size={currentSize}
                 minWidth={320}
                 minHeight={240}
+                enable={w.isMaximized ? false : {
+                  top: true, right: true, bottom: true, left: true,
+                  topRight: true, bottomRight: true, bottomLeft: true, topLeft: true,
+                }}
                 onResizeStart={() => {
                   focusWindow(w.id)
                   resizeStartPos.current = { x: w.position.x, y: w.position.y }
                 }}
-                onResize={(_e, direction, ref, delta) => {
+                onResize={(_e, direction, _ref, delta) => {
                   const movesLeft = direction.toLowerCase().includes('left')
                   const movesTop = direction.toLowerCase().includes('top')
                   if (movesLeft || movesTop) {
@@ -98,22 +117,10 @@ export default function Panel({ window: w, children }: PanelProps) {
                   }
                 }}
                 onResizeStop={(_e, _direction, ref) => {
-                  setSize({
-                    width: ref.offsetWidth,
-                    height: ref.offsetHeight,
-                  })
-                }}
-                enable={w.isMaximized ? {
-                  top: false, right: false, bottom: false, left: false,
-                  topRight: false, bottomRight: false, bottomLeft: false, topLeft: false,
-                } : {
-                  top: true, right: true, bottom: true, left: true,
-                  topRight: true, bottomRight: true, bottomLeft: true, topLeft: true,
+                  resizeWindow(w.id, { width: ref.offsetWidth, height: ref.offsetHeight })
                 }}
               >
-                <MacChrome id={w.id} title={w.title} isActive={isActive} onMouseDown={() => focusWindow(w.id)}>
-                  {children}
-                </MacChrome>
+                {renderChrome()}
               </Resizable>
             </motion.div>
           </div>
