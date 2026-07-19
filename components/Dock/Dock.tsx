@@ -1,5 +1,6 @@
 'use client'
 
+import { Fragment } from 'react'
 import { useMotionValue } from 'framer-motion'
 import DockItem from './DockItem'
 import { desktopItems } from '@/data/desktopItems'
@@ -10,43 +11,54 @@ export default function Dock() {
   const mouseX = useMotionValue(Infinity)
 
   return (
-    <div
-      className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 flex items-end gap-2 px-3 py-2 rounded-2xl"
-      style={{
-        background: 'var(--dock-bg)',
-        backdropFilter: 'var(--blur-dock)',
-        WebkitBackdropFilter: 'var(--blur-dock)',
-        border: '1px solid var(--dock-border)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-      }}
-      onMouseMove={(e) => mouseX.set(e.clientX)}
-      onMouseLeave={() => mouseX.set(Infinity)}
-    >
-      {desktopItems.map((item) => {
-        const w = windows.find((w) => w.id === item.id)
-        return (
-          <DockItem
-            key={item.id}
-            label={item.label}
-            onClick={() => openWindow(item.id)}
-            isActive={w?.isOpen === true && w?.isMinimized === false}
-            mouseX={mouseX}
-          >
-            {item.dockIcon}
-          </DockItem>
-        )
-      })}
-
-      {/* Separator */}
+    <section className="fixed left-0 bottom-0 z-50 w-full h-[5.2rem] p-[0.4rem] flex justify-center pointer-events-none">
       <div
-        className="w-px mx-1 self-stretch"
-        style={{ background: 'var(--border-high)' }}
-      />
+        className="relative h-full flex items-end p-[0.3rem] rounded-[1.2rem] pointer-events-auto"
+        style={{
+          background: 'rgba(255,255,255,0.10)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          boxShadow:
+            'inset 0 0 0 0.2px rgba(255,255,255,0.5), 0 0 0 0.2px rgba(0,0,0,0.6), 2px 5px 19px 7px rgba(0,0,0,0.3)',
+        }}
+        onMouseMove={(e) => mouseX.set(e.clientX)}
+        onMouseLeave={() => mouseX.set(Infinity)}
+      >
+        {desktopItems.map((item) => {
+          const w = windows.find((win) => win.id === item.id)
+          return (
+            <Fragment key={item.id}>
+              {item.dockBreakBefore && (
+                <div
+                  aria-hidden="true"
+                  className="h-full w-px mx-1 self-stretch"
+                  style={{ background: 'rgba(255,255,255,0.25)' }}
+                />
+              )}
+              <DockItem
+                label={item.label}
+                onClick={() => openWindow(item.id)}
+                isActive={w?.isOpen === true && w?.isMinimized === false}
+                mouseX={mouseX}
+              >
+                {item.dockIcon}
+              </DockItem>
+            </Fragment>
+          )
+        })}
 
-      {/* Recycle bin */}
-      <DockItem label="Trash" mouseX={mouseX}>
-        <span className="text-3xl">🗑️</span>
-      </DockItem>
-    </div>
+        {/* Divider before Trash */}
+        <div
+          aria-hidden="true"
+          className="h-full w-px mx-1 self-stretch"
+          style={{ background: 'rgba(255,255,255,0.25)' }}
+        />
+
+        {/* Trash */}
+        <DockItem label="Trash" mouseX={mouseX}>
+          <span className="text-3xl">🗑️</span>
+        </DockItem>
+      </div>
+    </section>
   )
 }

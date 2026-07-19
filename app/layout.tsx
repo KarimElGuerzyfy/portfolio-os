@@ -3,6 +3,7 @@ import { Geist } from 'next/font/google'
 import './globals.css'
 import { WindowProvider } from '@/context/WindowContext'
 import MenuBar from '@/components/Taskbar/MenuBar'
+import { SettingsProvider } from '@/context/SettingsContext'
 
 const geist = Geist({
   subsets: ['latin'],
@@ -23,8 +24,10 @@ export default function RootLayout({
     <html lang="en" className={geist.variable}>
       <body className="h-full overflow-hidden">
         <WindowProvider>
-          <MenuBar />
-          {children}
+          <SettingsProvider>
+            <MenuBar />
+            {children}
+          </SettingsProvider>
         </WindowProvider>
       </body>
     </html>

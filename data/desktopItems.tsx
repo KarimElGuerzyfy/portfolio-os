@@ -17,6 +17,7 @@ export interface DesktopItem {
   variant: WindowVariant
   dockIcon: ReactNode
   desktopIcon: ReactNode
+  dockBreakBefore?: boolean
 }
 
 export const desktopItems: DesktopItem[] = [
@@ -38,6 +39,7 @@ export const desktopItems: DesktopItem[] = [
     id: 'cv',
     label: 'CV.pdf',
     variant: 'pdf',
+    dockBreakBefore: true,
     dockIcon: (
       <div className="w-8 h-8 rounded flex items-center justify-center text-xs font-bold"
         style={{ background: '#d4622a', color: '#fff' }}>
