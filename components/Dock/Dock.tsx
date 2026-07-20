@@ -1,14 +1,12 @@
 'use client'
 
 import { Fragment } from 'react'
-import { useMotionValue } from 'framer-motion'
 import DockItem from './DockItem'
 import { desktopItems } from '@/data/desktopItems'
 import { useWindows } from '@/context/WindowContext'
 
 export default function Dock() {
   const { openWindow, windows } = useWindows()
-  const mouseX = useMotionValue(Infinity)
 
   return (
     <section className="fixed left-0 bottom-0 z-50 w-full h-[5.2rem] p-[0.4rem] flex justify-center pointer-events-none">
@@ -21,8 +19,6 @@ export default function Dock() {
           boxShadow:
             'inset 0 0 0 0.2px rgba(255,255,255,0.5), 0 0 0 0.2px rgba(0,0,0,0.6), 2px 5px 19px 7px rgba(0,0,0,0.3)',
         }}
-        onMouseMove={(e) => mouseX.set(e.clientX)}
-        onMouseLeave={() => mouseX.set(Infinity)}
       >
         {desktopItems.map((item) => {
           const w = windows.find((win) => win.id === item.id)
@@ -39,7 +35,6 @@ export default function Dock() {
                 label={item.label}
                 onClick={() => openWindow(item.id)}
                 isActive={w?.isOpen === true && w?.isMinimized === false}
-                mouseX={mouseX}
               >
                 {item.dockIcon}
               </DockItem>
@@ -55,7 +50,7 @@ export default function Dock() {
         />
 
         {/* Trash */}
-        <DockItem label="Trash" mouseX={mouseX}>
+        <DockItem label="Trash">
           <span className="text-3xl">🗑️</span>
         </DockItem>
       </div>

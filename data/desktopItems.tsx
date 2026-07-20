@@ -37,7 +37,7 @@ export const desktopItems: DesktopItem[] = [
   },
   {
     id: 'cv',
-    label: 'CV.pdf',
+    label: 'Resume',
     variant: 'pdf',
     dockBreakBefore: true,
     dockIcon: (
@@ -55,21 +55,21 @@ export const desktopItems: DesktopItem[] = [
   },
   {
     id: 'about',
-    label: 'about.txt',
+    label: 'About',
     variant: 'notepad',
     dockIcon: <span className="text-2xl">📄</span>,
     desktopIcon: <span className="text-3xl">📄</span>,
   },
   {
     id: 'skills',
-    label: 'Skills.json',
+    label: 'Skills',
     variant: 'notepad',
     dockIcon: <span className="text-2xl">⚙️</span>,
     desktopIcon: <span className="text-3xl">⚙️</span>,
   },
   {
     id: 'buildlog',
-    label: 'build-log.md',
+    label: 'Build Log',
     variant: 'notepad',
     dockIcon: <span className="text-2xl">📝</span>,
     desktopIcon: <span className="text-3xl">📝</span>,

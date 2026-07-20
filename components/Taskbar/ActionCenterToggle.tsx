@@ -41,7 +41,7 @@ export default function ActionCenterToggle() {
             alt="Control Center"
             width={30}
             height={30}
-            className="inline-block align-middle"
+            className="inline-block align-middle w-8 h-8"
         />
       </button>
 

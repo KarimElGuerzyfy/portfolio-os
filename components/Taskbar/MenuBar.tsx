@@ -116,7 +116,7 @@ export default function MenuBar() {
                     alt="Apple menu"
                     width={16}
                     height={16}
-                    className="inline-block align-middle"
+                    className="inline-block align-middle w-5 h-5"
                   />
                 ) : (
                   menu.title

@@ -1,27 +1,31 @@
 'use client'
 
-import { Code, Briefcase, AtSign, FileCode, Mail, Globe } from 'lucide-react'
+import type { ComponentType } from 'react'
+import { Mail, Globe } from 'lucide-react'
+import { FaGithub, FaLinkedin, FaXing } from 'react-icons/fa6'
+
 const SOCIALS = [
-  { label: 'GitHub',   icon: Code,   href: 'https://github.com/KarimElGuerzyfy' },
-  { label: 'LinkedIn', icon: Briefcase, href: '#' },
-  { label: 'X',        icon: AtSign,  href: '#' },
-  { label: 'Dev.to',   icon: FileCode,    href: '#' },
-  { label: 'Email',    icon: Mail,     href: 'mailto:your-email@example.com' },
+  { label: 'GitHub',   icon: FaGithub,   href: 'https://github.com/KarimElGuerzyfy' },
+  { label: 'LinkedIn', icon: FaLinkedin, href: 'https://www.linkedin.com/in/karim-el-guerzyfy-775120233/' },
+  { label: 'Xing',     icon: FaXing,     href: 'https://www.xing.com/profile/Karim_ElGuerzyfy/web_profiles' },
+  { label: 'Email',    icon: Mail,       href: 'mailto:karim.lguerzyfy@gmail.com' },
 ]
 
 const PROJECTS = [
   { label: 'Deuka', icon: Globe, href: 'https://deuka.app' },
 ]
 
-function ExtLink({ icon: Icon, label, href }: { icon: typeof Code; label: string; href: string }) {
+type IconComponent = ComponentType<{ size?: number; className?: string }>
+
+function ExtLink({ icon: Icon, label, href }: { icon: IconComponent; label: string; href: string }) {
+  const isMailto = href.startsWith('mailto:')
   return (
     <a
       href={href}
-      target="_blank"
-      rel="noopener noreferrer"
+      {...(!isMailto && { target: '_blank', rel: 'noopener noreferrer' })}
       className="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-white/5 cursor-pointer text-text"
     >
-      <Icon size={16} strokeWidth={1.8} className="text-text-dim" />
+      <Icon size={16} className="text-text-dim" />
       {label}
     </a>
   )

@@ -28,8 +28,8 @@ export const menuBarItems: MenuConfig[] = [
     title: '⌘',
     items: [
       { label: 'About This Developer', opensWindow: 'about', breakAfter: true },
-      { label: 'Download CV', downloads: '/resume.pdf' },
-      { label: 'View Résumé', opensWindow: 'cv', breakAfter: true },
+      { label: 'Download Resume', downloads: '/resume.pdf' },
+      { label: 'View Resume', opensWindow: 'cv', breakAfter: true },
       { label: 'Contact', opensWindow: 'contact' },
     ],
   },
