@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 
 export type WindowId =
   | 'deuka'
   | 'ledger'
   | 'cv'
   | 'about'
-  | 'skills'
   | 'buildlog'
   | 'contact'
 
@@ -25,31 +25,45 @@ export const desktopItems: DesktopItem[] = [
     id: 'deuka',
     label: 'Deuka',
     variant: 'browser',
-    dockIcon: <span className="text-2xl">🌦</span>,
-    desktopIcon: <span className="text-3xl">🌦</span>,
+    dockIcon: (
+      <div className="w-full h-full rounded-[22%] overflow-hidden scale-[0.83]">
+        <Image src="/icons/deuka.png" alt="" width={114} height={114} priority className="w-full h-full object-cover" />
+      </div>
+    ),
+    desktopIcon: (
+      <div className="w-full h-full rounded-[22%] overflow-hidden scale-[0.83]">
+        <Image src="/icons/deuka.png" alt="" width={114} height={114} priority className="w-full h-full object-cover" />
+      </div>
+    ),
   },
   {
     id: 'ledger',
     label: 'Ledger',
     variant: 'browser',
-    dockIcon: <span className="text-2xl">📒</span>,
-    desktopIcon: <span className="text-3xl">📒</span>,
+    dockIcon: (
+      <div className="w-full h-full rounded-[22%] overflow-hidden scale-[0.83]">
+        <Image src="/icons/ledger.svg" alt="" width={114} height={114} priority className="w-full h-full object-cover" />
+      </div>
+    ),
+    desktopIcon: (
+      <div className="w-full h-full rounded-[22%] overflow-hidden scale-[0.83]">
+        <Image src="/icons/ledger.svg" alt="" width={114} height={114} priority className="w-full h-full object-cover" />
+      </div>
+    ),
   },
-  {
+{
     id: 'cv',
     label: 'Resume',
     variant: 'pdf',
     dockBreakBefore: true,
     dockIcon: (
-      <div className="w-8 h-8 rounded flex items-center justify-center text-xs font-bold"
-        style={{ background: '#d4622a', color: '#fff' }}>
-        CV
+      <div className="w-full h-full scale-[0.83]">
+        <Image src="/icons/resume.webp" alt="" width={114} height={114} priority className="w-full h-full" />
       </div>
     ),
     desktopIcon: (
-      <div className="w-10 h-10 rounded flex items-center justify-center text-sm font-bold"
-        style={{ background: '#d4622a', color: '#fff' }}>
-        CV
+      <div className="w-full h-full scale-[0.83]">
+        <Image src="/icons/resume.webp" alt="" width={114} height={114} priority className="w-full h-full" />
       </div>
     ),
   },
@@ -57,28 +71,29 @@ export const desktopItems: DesktopItem[] = [
     id: 'about',
     label: 'About',
     variant: 'notepad',
-    dockIcon: <span className="text-2xl">📄</span>,
-    desktopIcon: <span className="text-3xl">📄</span>,
-  },
-  {
-    id: 'skills',
-    label: 'Skills',
-    variant: 'notepad',
-    dockIcon: <span className="text-2xl">⚙️</span>,
-    desktopIcon: <span className="text-3xl">⚙️</span>,
+    dockIcon: (
+      <div className="w-full h-full rounded-[22%] overflow-hidden scale-[0.83]">
+        <Image src="/icons/about.jpeg" alt="" width={114} height={114} priority className="w-full h-full object-cover" />
+      </div>
+    ),
+    desktopIcon: (
+      <div className="w-full h-full rounded-[22%] overflow-hidden scale-[0.83]">
+        <Image src="/icons/about.jpeg" alt="" width={114} height={114} priority className="w-full h-full object-cover" />
+      </div>
+    ),
   },
   {
     id: 'buildlog',
     label: 'Build Log',
     variant: 'notepad',
-    dockIcon: <span className="text-2xl">📝</span>,
-    desktopIcon: <span className="text-3xl">📝</span>,
+    dockIcon: <Image src="/icons/notes.png" alt="" width={114} height={114} priority className="w-full h-full" />,
+    desktopIcon: <Image src="/icons/notes.png" alt="" width={114} height={114} priority className="w-full h-full" />,
   },
   {
     id: 'contact',
     label: 'Contact',
     variant: 'email',
-    dockIcon: <span className="text-2xl">✉️</span>,
-    desktopIcon: <span className="text-3xl">✉️</span>,
+    dockIcon: <Image src="/icons/mail.png" alt="" width={114} height={114} priority className="w-full h-full" />,
+    desktopIcon: <Image src="/icons/mail.png" alt="" width={114} height={114} priority className="w-full h-full" />,
   },
 ]

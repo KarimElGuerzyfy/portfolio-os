@@ -4,10 +4,11 @@ import { useRef, useState, useEffect } from 'react'
 import Draggable from 'react-draggable'
 import { Resizable } from 're-resizable'
 import { motion, AnimatePresence } from 'framer-motion'
-import MacChrome from '@/components/WindowChrome/MacChrome'
 import SafariChrome from '@/components/WindowChrome/SafariChrome'
 import ResumeChrome from '@/components/WindowChrome/ResumeChrome'
 import AboutChrome from '@/components/WindowChrome/AboutChrome'
+import DocChrome from '@/components/WindowChrome/DocChrome'
+import MailChrome from '@/components/WindowChrome/MailChrome'
 import { useWindows } from '@/context/WindowContext'
 import { desktopItems } from '@/data/desktopItems'
 import type { WindowState } from '@/context/WindowContext'
@@ -66,7 +67,9 @@ export default function Panel({ window: w, children }: PanelProps) {
       return <ResumeChrome {...common} title={w.title}>{children}</ResumeChrome>
     if (w.id === 'about')
       return <AboutChrome {...common} title="About the Developer">{children}</AboutChrome>
-    return <MacChrome {...common} title={w.title}>{children}</MacChrome>
+    if (w.id === 'buildlog')
+      return <DocChrome {...common} />
+    return <MailChrome {...common}>{children}</MailChrome>
   }
 
   return (

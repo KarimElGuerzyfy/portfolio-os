@@ -39,7 +39,6 @@ export const menuBarItems: MenuConfig[] = [
     items: [
       { label: 'Deuka', opensWindow: 'deuka' },
       { label: 'Ledger', opensWindow: 'ledger', breakAfter: true },
-      { label: 'Skills', opensWindow: 'skills' },
       { label: 'Build Log', opensWindow: 'buildlog' },
     ],
   },
