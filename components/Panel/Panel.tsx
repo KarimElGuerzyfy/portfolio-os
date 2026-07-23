@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react'
 import Draggable from 'react-draggable'
 import { Resizable } from 're-resizable'
 import { motion, AnimatePresence } from 'framer-motion'
+import AppChrome from '@/components/WindowChrome/AppChrome'
 import SafariChrome from '@/components/WindowChrome/SafariChrome'
 import ResumeChrome from '@/components/WindowChrome/ResumeChrome'
 import AboutChrome from '@/components/WindowChrome/AboutChrome'
@@ -61,6 +62,8 @@ export default function Panel({ window: w, children }: PanelProps) {
 
   const renderChrome = () => {
     const common = { id: w.id, isActive, onMouseDown: () => focusWindow(w.id) }
+    if (w.id === 'deuka')
+      return <AppChrome {...common} title="Deuka">{children}</AppChrome>
     if (variant === 'browser')
       return <SafariChrome {...common} url={BROWSER_URLS[w.id] ?? 'localhost'}>{children}</SafariChrome>
     if (variant === 'pdf')
@@ -78,6 +81,7 @@ export default function Panel({ window: w, children }: PanelProps) {
         <Draggable
           nodeRef={nodeRef as React.RefObject<HTMLElement>}
           handle=".window-titlebar"
+          cancel=".no-drag"
           position={currentPosition}
           onStart={() => {
             focusWindow(w.id)

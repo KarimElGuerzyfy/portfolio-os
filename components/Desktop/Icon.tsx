@@ -9,6 +9,13 @@ export default function Icon({ label, children, onDoubleClick }: IconProps) {
     <button
       onDoubleClick={onDoubleClick}
       onClick={(e) => e.detail === 2 && onDoubleClick?.()}
+      onPointerUp={(e) => {
+        // Mobile browsers don't reliably synthesize `dblclick` (or a click
+        // with detail === 2) from two taps, so the handlers above never fire
+        // there. Touch/pen opens on a single tap instead; mouse is untouched
+        // and still requires the double-click.
+        if (e.pointerType !== 'mouse') onDoubleClick?.()
+      }}
       className="flex flex-col items-center gap-1.5 p-2 rounded-lg cursor-default select-none group w-20 transition-all duration-150"
       style={{ background: 'transparent' }}
       onFocus={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}

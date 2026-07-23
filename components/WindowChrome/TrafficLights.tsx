@@ -17,10 +17,13 @@ const ICON_STYLE = {
 const ACTIVE_SHADOW = 'inset 0 0.5px 1px rgba(255,255,255,0.4), inset 0 -0.5px 1px rgba(0,0,0,0.2)'
 
 // Whole cluster scales together on hover (your intended behavior)
+// before:-inset-1.5 grows the tappable area ~6px past each 15px circle
+// without touching the rendered size — the circles themselves stay 15px.
 const BUTTON_BASE = `
   relative flex items-center justify-center rounded-full w-[15px] h-[15px]
   transition-transform duration-150 ease-out group-hover/lights:scale-[1.18]
   hover:brightness-90 active:brightness-75
+  before:content-[''] before:absolute before:-inset-1.5
 `.trim()
 
 const ICON_CLS = 'opacity-0 group-hover/lights:opacity-100 transition-opacity duration-100'
@@ -30,7 +33,12 @@ export default function TrafficLights({ id, isActive }: TrafficLightsProps) {
 
   return (
     <div
-      className="flex items-center gap-2 group/lights select-none cursor-default"
+      // "no-drag" matches the `cancel` selector passed to <Draggable> in
+      // Panel.tsx. react-draggable checks it via DOM ancestor traversal
+      // inside its own drag-start handler, before it calls preventDefault()
+      // — so unlike a stopPropagation-based guard, it isn't subject to
+      // event-listener ordering and reliably blocks drag-start for touch too.
+      className="no-drag flex items-center gap-2 group/lights select-none cursor-default"
       onMouseDown={(e) => e.stopPropagation()}
     >
       <button

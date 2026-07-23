@@ -54,6 +54,7 @@ export const SIZES: Record<WindowVariant, { width: number; height: number }> = {
 const ID_SIZES: Partial<Record<WindowId, { width: number; height: number }>> = {
   buildlog: { width: 1000, height: 858 },
   cv:       { width: 650,  height: 850 },
+  deuka:    { width: 1200, height: 903 },
 }
 
 const initialState: ReducerState = {
