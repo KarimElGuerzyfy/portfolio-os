@@ -84,7 +84,7 @@ export const desktopItems: DesktopItem[] = [
   },
   {
     id: 'buildlog',
-    label: 'Build Log',
+    label: 'Case Studies',
     variant: 'notepad',
     dockIcon: <Image src="/icons/notes.png" alt="" width={114} height={114} priority className="w-full h-full" />,
     desktopIcon: <Image src="/icons/notes.png" alt="" width={114} height={114} priority className="w-full h-full" />,

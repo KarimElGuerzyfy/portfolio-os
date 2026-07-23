@@ -22,7 +22,7 @@ type ReducerState = {
 }
 
 type WindowAction =
-  | { type: 'OPEN_WINDOW'; id: WindowId; position: { x: number; y: number } }
+  | { type: 'OPEN_WINDOW'; id: WindowId; position: { x: number; y: number }; size: { width: number; height: number } }
   | { type: 'CLOSE_WINDOW'; id: WindowId }
   | { type: 'MINIMIZE_WINDOW'; id: WindowId }
   | { type: 'FOCUS_WINDOW'; id: WindowId }
@@ -51,6 +51,11 @@ export const SIZES: Record<WindowVariant, { width: number; height: number }> = {
   email:   { width: 725,  height: 525 },
 }
 
+const ID_SIZES: Partial<Record<WindowId, { width: number; height: number }>> = {
+  buildlog: { width: 1000, height: 858 },
+  cv:       { width: 650,  height: 850 },
+}
+
 const initialState: ReducerState = {
   topZ: 20,
   windows: desktopItems.map((item) => ({
@@ -74,7 +79,7 @@ function reducer(state: ReducerState, action: WindowAction): ReducerState {
         topZ,
         windows: state.windows.map((w) =>
           w.id === action.id
-            ? { ...w, isOpen: true, isMinimized: false, isMaximized: false, zIndex: topZ, position: action.position, savedPosition: null }
+            ? { ...w, isOpen: true, isMinimized: false, isMaximized: false, zIndex: topZ, position: action.position, size: action.size, savedPosition: null }
             : w
         ),
       }
@@ -147,16 +152,23 @@ export function WindowProvider({ children }: { children: React.ReactNode }) {
   const openWindow = useCallback((id: WindowId) => {
     const item = desktopItems.find((d) => d.id === id)
     const variant = item?.variant ?? 'notepad'
-    const { width, height } = SIZES[variant]
 
     const menuBarHeight = 28
     const dockHeight = 80
+    const availableWidth = window.innerWidth
     const availableHeight = window.innerHeight - menuBarHeight - dockHeight
 
-    const x = Math.max(80, (window.innerWidth - width) / 2)
-    const y = Math.max(menuBarHeight, menuBarHeight + (availableHeight - height) / 2)
+    const desiredSize = ID_SIZES[id] ?? SIZES[variant]
+    const width = Math.min(desiredSize.width, availableWidth - 40)
+    const height = Math.min(desiredSize.height, availableHeight - 40)
 
-    dispatch({ type: 'OPEN_WINDOW', id, position: { x, y } })
+    const desiredX = Math.max(80, (availableWidth - width) / 2)
+    const desiredY = Math.max(menuBarHeight, menuBarHeight + (availableHeight - height) / 2)
+
+    const x = Math.max(0, Math.min(desiredX, availableWidth - width))
+    const y = Math.max(menuBarHeight, Math.min(desiredY, menuBarHeight + availableHeight - height))
+
+    dispatch({ type: 'OPEN_WINDOW', id, position: { x, y }, size: { width, height } })
   }, [])
 
   const closeWindow = useCallback((id: WindowId) =>

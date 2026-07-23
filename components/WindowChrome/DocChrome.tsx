@@ -43,7 +43,7 @@ export default function DocChrome({ id, isActive, onMouseDown }: DocChromeProps)
           className="flex-1 text-center text-xs font-medium truncate"
           style={{ color: isActive ? 'var(--text)' : 'var(--text-dim)' }}
         >
-          Build Log
+          Case Studies
         </span>
 
         <div style={{ width: '52px' }} />
